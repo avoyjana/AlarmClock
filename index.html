@@ -51,7 +51,7 @@
         <p>Current Time: <span id="current-time"></span></p>
         <p class="countdown">Time Remaining: <span id="time-remaining">N/A</span></p>
     </div>
-    <audio id="alarm-sound">
+    <audio id="alarm-sound" preload="auto">
         <source src="alarm.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
@@ -96,11 +96,18 @@
 
             clearTimeout(alarmTimeout);
             alarmTimeout = setTimeout(() => {
-                document.getElementById('alarm-sound').play();
-                alert('Alarm ringing!');
+                playAlarm();
             }, alarmTime - now);
 
             alert(`Alarm set for ${alarmTime.toLocaleTimeString()}.`);
+        }
+
+        function playAlarm() {
+            const alarmSound = document.getElementById('alarm-sound');
+            alarmSound.currentTime = 0; // Restart audio
+            alarmSound.play().catch(error => {
+                console.error('Error playing alarm:', error);
+            });
         }
 
         function clearAlarm() {
