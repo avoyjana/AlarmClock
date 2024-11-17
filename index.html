@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm Clock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .timer, .set-alarm {
+            margin: 20px 0;
+        }
+        input[type="time"] {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .countdown {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Alarm Clock</h1>
+    <div class="set-alarm">
+        <label for="alarm-time">Set Alarm Time:</label>
+        <input type="time" id="alarm-time">
+        <button onclick="setAlarm()">Set Alarm</button>
+        <button onclick="clearAlarm()">Clear Alarm</button>
+    </div>
+    <div class="timer">
+        <p>Current Time: <span id="current-time"></span></p>
+        <p class="countdown">Time Remaining: <span id="time-remaining">N/A</span></p>
+    </div>
+    <audio id="alarm-sound">
+        <source src="alarm.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        let alarmTime = null;
+        let alarmTimeout = null;
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString();
+
+            // Countdown logic
+            if (alarmTime) {
+                const timeDiff = alarmTime - now;
+                if (timeDiff > 0) {
+                    const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+                    const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
+                    const seconds = Math.floor((timeDiff / 1000) % 60);
+                    document.getElementById('time-remaining').textContent = 
+                        `${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    document.getElementById('time-remaining').textContent = "Time's up!";
+                }
+            }
+        }
+
+        function setAlarm() {
+            const alarmInput = document.getElementById('alarm-time').value;
+            if (!alarmInput) {
+                alert('Please set a valid alarm time.');
+                return;
+            }
+
+            const now = new Date();
+            alarmTime = new Date(now.toDateString() + ' ' + alarmInput);
+
+            if (alarmTime <= now) {
+                alert('Alarm time must be in the future!');
+                return;
+            }
+
+            clearTimeout(alarmTimeout);
+            alarmTimeout = setTimeout(() => {
+                document.getElementById('alarm-sound').play();
+                alert('Alarm ringing!');
+            }, alarmTime - now);
+
+            alert(`Alarm set for ${alarmTime.toLocaleTimeString()}.`);
+        }
+
+        function clearAlarm() {
+            alarmTime = null;
+            clearTimeout(alarmTimeout);
+            document.getElementById('time-remaining').textContent = 'N/A';
+            alert('Alarm cleared.');
+        }
+
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
